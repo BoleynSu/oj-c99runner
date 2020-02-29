@@ -1,5 +1,5 @@
 FROM openjdk:latest
-RUN curl -L boleyn.su/pgp | gpg --import
+RUN curl -L https://boleyn.su/pgp | gpg --import
 RUN yum install wget gcc -y && yum clean all
 
 ENV APPROOT=/boleyn.su/opt/boleyn.su/oj-c99runner/
