@@ -1,4 +1,4 @@
-FROM openjdk:latest
+FROM openjdk
 RUN curl -L https://boleyn.su/pgp | gpg --import
 RUN yum install wget gcc -y && yum clean all
 
@@ -6,7 +6,7 @@ ENV APPROOT=/boleyn.su/opt/boleyn.su/oj-c99runner/
 RUN mkdir -p $APPROOT
 WORKDIR $APPROOT
 
-ENV VERSION=1.0.1
+ENV VERSION=1.0.2
 RUN wget https://repo1.maven.org/maven2/su/boleyn/oj/oj-c99runner/$VERSION/oj-c99runner-$VERSION-jar-with-dependencies.jar{,.asc}
 RUN gpg --verify oj-c99runner-$VERSION-jar-with-dependencies.jar.asc
 
