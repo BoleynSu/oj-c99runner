@@ -1,0 +1,3 @@
+[submodule "external/oj-judge"]
+	path = external/oj-judge
+	url = ../oj-judge.git

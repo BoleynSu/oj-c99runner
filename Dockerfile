@@ -1,21 +1,25 @@
+FROM maven as build
+RUN useradd builder
+WORKDIR /build
+RUN chown builder:builder /build
+USER builder
+COPY --chown=builder ./ ./
+
+RUN mvn install -Dgpg.skip -f external/oj-judge/pom.xml
+RUN mvn package
+RUN mkdir -p out
+RUN mvn help:evaluate -q -Dexpression=project.version -DforceStdout > out/version
+RUN mv target/oj-c99runner-$(cat out/version)-jar-with-dependencies.jar out/oj-c99runner.jar
+
 FROM openjdk
-RUN curl -L https://boleyn.su/pgp | gpg --import
-RUN yum install wget gcc -y && yum clean all
-
-ENV APPROOT=/boleyn.su/opt/boleyn.su/oj-c99runner/
-RUN mkdir -p $APPROOT
-WORKDIR $APPROOT
-
-ENV VERSION=1.0.2
-RUN wget https://repo1.maven.org/maven2/su/boleyn/oj/oj-c99runner/$VERSION/oj-c99runner-$VERSION-jar-with-dependencies.jar{,.asc}
-RUN gpg --verify oj-c99runner-$VERSION-jar-with-dependencies.jar.asc
+RUN yum install gcc -y && yum clean all
+COPY --from=build /build/out /oj-c99runner
 
 RUN useradd -r oj-c99runner
-USER oj-c99runner:oj-c99runner
+USER oj-c99runner
 EXPOSE 1993
 
 ENV RUNNER_ADDRESS 0.0.0.0
 ENV RUNNER_PORT 1993
 
-CMD /usr/bin/bash -c '\
-    java $CONFIG -jar $APPROOT/oj-c99runner-$VERSION-jar-with-dependencies.jar'
+CMD java -jar /oj-c99runner/oj-c99runner.jar
